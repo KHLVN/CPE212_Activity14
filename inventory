@@ -1,0 +1,12 @@
+[keystone]
+server1
+centos9   ansible_user=user_khlvn
+
+[glance]
+server1
+centos9   ansible_user=user_khlvn
+
+[nova]
+server1
+centos9   ansible_user=user_khlvn
+

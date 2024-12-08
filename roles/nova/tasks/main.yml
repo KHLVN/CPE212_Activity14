@@ -1,0 +1,56 @@
+---
+ - name: Python packages (CentOS)
+   yum:
+     name:
+       - python3-pip
+       - python3-devel
+       - libffi-devel
+       - gcc
+     state: present
+   when: ansible_distribution == "CentOS"
+
+ - name: Install Nova packages (Ubuntu)
+   package:
+     name:
+       - nova-api
+       - nova-scheduler
+       - nova-conductor
+       - nova-compute
+     state: present
+     update_cache: yes
+   when: ansible_distribution == "Ubuntu"
+
+ - name: Install Nova packages (CentOS)
+   yum:
+     name:
+       - openstack-nova-api
+       - openstack-nova-scheduler
+       - openstack-nova-conductor
+       - python3-openstackclient
+     state: present
+   when: ansible_distribution == "CentOS"
+
+# - name: Configure Nova database (Control Node only)
+#   when: "'controller' in group_names"
+#   shell: |
+#     mysql -uroot -p{{ mysql_root_password }} -e "
+#     CREATE DATABASE nova;
+#     GRANT ALL PRIVILEGES ON nova.* TO 'nova'@'localhost' IDENTIFIED BY '{{ nova_db_password }}';
+#     FLUSH PRIVILEGES;"
+#     creates=/var/lib/mysql/nova
+
+ - name: Configure Nova
+   template:
+     src: nova.conf.j2
+     dest: /etc/nova/nova.conf
+
+ - name: Enable and Start Nova Services
+   systemd:
+     name: "{{ item }}"
+     state: started
+     enabled: yes
+   loop:
+    - openstack-nova-api
+    - openstack-nova-scheduler
+    - openstack-nova-conductor
+   when: ansible_distribution == "CentOS"

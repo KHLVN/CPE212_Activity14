@@ -1,0 +1,10 @@
+admin_token: "555979ff-bce5-41fd-8ee8-a1a121473eda"
+mysql_root_password: "toor"
+keystone_db_password: "toor"
+glance_db_password: "toor"
+nova_db_password: "toor"
+rabbitmq_password: "toor"
+controller_host: server1
+placement_password: "toor"
+glance_password: "toor"
+

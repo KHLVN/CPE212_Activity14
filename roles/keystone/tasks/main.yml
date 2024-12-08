@@ -1,0 +1,65 @@
+---
+ - name: Install OpenStack Repos (CentOS)
+   package:
+     name: 
+       - centos-release-openstack-yoga
+       - python3-openstackclient
+     state: present
+     update_cache: yes
+   when: ansible_distribution == "CentOS"
+
+ - name: Install Keystone and Dependencies (CentOS)
+   package:
+     name: 
+       - openstack-keystone
+       - httpd
+       - mod_wsgi
+     state: present   
+   when: ansible_distribution == "CentOS"
+
+ - name: Install Keystone (Ubuntu)
+   package:
+     name: keystone
+     state: present
+   when: ansible_distribution == "Ubuntu"
+
+# - name: Configure Keystone database
+#   shell: | 
+#     mysql -uroot -p{{ mysql_root_password }} -e "
+#     CREATE DATABASE keystone;
+#     GRANT ALL PRIVILEGES ON keystone.* TO 'keystone'@'localhost' IDENTIFIED BY '{{ keystone_db_password }}';
+#     FLUSH PRIVILEGES;"
+#     creates=/var/lib/mysql/keystone
+
+ - name: Configure Keystone
+   template:
+     src: keystone.conf.j2
+     dest: /etc/keystone/keystone.conf
+
+ - name: Enable and Start Keystone services (Ubuntu)
+   systemd: 
+     name: apache2
+     state: started
+     enabled: yes
+   when: ansible_distribution == "Ubuntu"
+
+ - name: Enable and Start Keystone services (CentOS)
+   systemd: 
+     name: httpd
+     state: started
+     enabled: yes
+   when: ansible_distribution == "CentOS"
+
+ - name: Restart Apache Service (Ubuntu)
+   systemd:
+     name: apache2
+     enabled: yes
+     state: restarted
+   when: ansible_distribution == "Ubuntu"
+
+ - name: Restart Apache Service (CentOS)
+   systemd:
+     name: httpd
+     enabled: yes
+     state: restarted
+   when: ansible_distribution == "CentOS"

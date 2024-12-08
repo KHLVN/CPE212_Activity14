@@ -1,0 +1,45 @@
+---
+ - name: Install Glance packages (Ubuntu)
+   apt:
+     name: 
+       - glance
+       - python3-glanceclient
+     state: present
+     update_cache: yes
+   when: ansible_distribution == "Ubuntu"
+
+ - name: Install Glance packages (CentOS)
+   yum:
+     name: 
+       - openstack-glance
+       - python3-openstackclient
+     state: present
+     update_cache: yes
+   when: ansible_distribution == "CentOS"
+
+# - name: Configure Glance database
+#   shell: | 
+#     mysql -uroot -p{{ mysql_root_password }} -e "
+#     CREATE DATABASE glance;
+#     GRANT ALL PRIVILEGES ON glance.* TO 'glance'@'localhost' IDENTIFIED BY '{{ glance_db_password }}';
+#     FLUSH PRIVILEGES;"
+#     creates=/var/lib/mysql/glance
+
+ - name: Configure Glance
+   template:
+     src: glance.conf.j2
+     dest: /etc/glance/glance.conf
+
+ - name: Enable and Start Glance services (Ubuntu)
+   systemd:
+     name: glance-api
+     state: started
+     enabled: yes
+   when: ansible_distribution == "Ubuntu"
+
+ - name: Enable and Start Glance services (CentOS)
+   systemd:
+     name: openstack-glance-api
+     state: started
+     enabled: yes
+   when: ansible_distribution == "CentOS"
